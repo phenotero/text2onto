@@ -14,7 +14,6 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -84,19 +83,9 @@ public class Text2Hpo {
 
 		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
 
-		// for (Path filePath : Files.newDirectoryStream(Paths.get(inputFilePath),
-		// path -> (path.toString().endsWith(".docx") ||
-		// path.toString().endsWith(".odt")))) {
-
 		Path root = Paths.get(inputFilePath);
-		Stream<Path> stream = Files.walk(root, Integer.MAX_VALUE).filter(f -> {
-			String fn = f.getFileName().toString();
-			return fn.endsWith(".docx") || fn.endsWith(".odt");
-		});
-		stream.forEach(s -> processFile(s, out));
-
-		// for (Path filePath : Files.walk.walk(Paths.get(inputFilePath)){
-
+		Files.walk(root, Integer.MAX_VALUE).filter(f -> f.getFileName().toString().endsWith(".docx") || f.getFileName().toString().endsWith(".odt"))
+				.forEach(s -> processFile(s, out));
 		out.close();
 
 	}
