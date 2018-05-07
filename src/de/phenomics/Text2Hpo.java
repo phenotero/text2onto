@@ -27,6 +27,10 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.odftoolkit.simple.TextDocument;
 
 /**
+ * Software to generate a flat-file of ontology-terms for a set of docx or odt
+ * files contained in a folder and/or subfolders.
+ * 
+ * 
  * @author Sebastian Köhler (dr.sebastian.koehler@gmail.com)
  *
  */
@@ -85,24 +89,30 @@ public class Text2Hpo {
 
 		Path root = Paths.get(inputFilePath);
 		Files.walk(root, Integer.MAX_VALUE).filter(f -> f.getFileName().toString().endsWith(".docx") || f.getFileName().toString().endsWith(".odt"))
-				.forEach(s -> processFile(s, out));
+				.forEach(filePath -> {
+					try {
+						processFile(filePath, out);
+					} catch (IOException e) {
+						System.err.println("error processing file: " + filePath);
+						e.printStackTrace();
+					}
+				});
 		out.close();
+		System.out.println("done.\nWritten results to " + outFile);
 
 	}
 
-	private Object processFile(Path filePath, BufferedWriter out) {
-		System.out.println("processing " + filePath);
+	private void processFile(Path filePath, BufferedWriter out) throws IOException {
+		System.out.println(" Processing " + filePath);
 		File file = filePath.toFile();
 		// get the content of the file
 		String textContent = getTextContent(file);
 		// parse the OBO-ids, e.g. HP:0000118
 		HashSet<String> oboTermIds = getOboTermIds(textContent);
-		return null;
+		out.write(file.toString() + "\t" + String.join(",", oboTermIds) + "\n");
 	}
 
 	private HashSet<String> getOboTermIds(String textContent) {
-
-		System.out.println("text: " + textContent);
 
 		HashSet<String> foundOntologyTermIds = new HashSet<>();
 		Pattern pattern = Pattern.compile("\\w{2,5}?:\\d+");
