@@ -34,7 +34,7 @@ import org.odftoolkit.simple.TextDocument;
  * @author Sebastian Köhler (dr.sebastian.koehler@gmail.com)
  *
  */
-public class Text2Hpo {
+public class Text2Phenotypes {
 
 	/**
 	 * @param args
@@ -75,7 +75,7 @@ public class Text2Hpo {
 
 		boolean verbose = cmd.hasOption("verbose");
 
-		Text2Hpo t2hpo = new Text2Hpo(inputFilePath, verbose);
+		Text2Phenotypes t2hpo = new Text2Phenotypes(inputFilePath, verbose);
 
 		t2hpo.processDir();
 
@@ -88,8 +88,8 @@ public class Text2Hpo {
 		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
 
 		Path root = Paths.get(inputFilePath);
-		Files.walk(root, Integer.MAX_VALUE).filter(f -> f.getFileName().toString().endsWith(".docx") || f.getFileName().toString().endsWith(".odt"))
-				.forEach(filePath -> {
+		Files.walk(root, Integer.MAX_VALUE)
+				.filter(f -> f.getFileName().toString().matches("\\w+.docx") || f.getFileName().toString().matches("\\w+.odt")).forEach(filePath -> {
 					try {
 						processFile(filePath, out);
 					} catch (IOException e) {
@@ -115,7 +115,8 @@ public class Text2Hpo {
 	private HashSet<String> getOboTermIds(String textContent) {
 
 		HashSet<String> foundOntologyTermIds = new HashSet<>();
-		Pattern pattern = Pattern.compile("\\w{2,5}?:\\d+");
+		Pattern pattern = Pattern.compile("(HP|MONDO|GO|UBERON|PATO|GO|CHEBI|SNOMED|UMLS):\\d+");
+		System.out.println();
 		Matcher m = pattern.matcher(textContent);
 
 		while (m.find()) {
@@ -162,7 +163,7 @@ public class Text2Hpo {
 	private String inputFilePath;
 	private boolean verbose;
 
-	public Text2Hpo(String inputFilePath, boolean verbose) {
+	public Text2Phenotypes(String inputFilePath, boolean verbose) {
 		this.inputFilePath = inputFilePath;
 		this.verbose = verbose;
 	}
